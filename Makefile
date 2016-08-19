@@ -17,6 +17,10 @@ define Package/function_key
 	DEPENDS:=+libmraa
 endef
 
+#EXTRA_CFLAGS
+EXTRA_LDFLAGS += -lmraa
+#TARGET_CFLAGS+= -Wall
+
 define Build/Prepare
 	@echo "############## Build/Prepare"
 	$(Build/Prepare/Default)
