@@ -13,12 +13,7 @@ static struct blob_buf b;
 
 static mraa_gpio_context gpio;
 
-static void mkeyd_isr(void *parm)
-{
-    //printf("isr enter\n");
-    // Update key status and notifty register client
-    // TODO
-}
+static void mkeyd_notify(void);
 
 static int
 mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
@@ -30,6 +25,8 @@ mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
     blobmsg_add_u16(&b, "gpio", GPIO_PIN);
     blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
+    // Test notify
+    mkeyd_notify();
 
     return 0;
 }
@@ -62,6 +59,8 @@ mkeyd_get(struct ubus_context *ctx, struct ubus_object *obj,
     blobmsg_add_u16(&b, "gpio", GPIO_PIN);
     blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
+    // Test notify
+    mkeyd_notify();
 
     return 0;
 }
@@ -84,6 +83,25 @@ static struct ubus_object mkeyd_object = {
 	.n_methods = ARRAY_SIZE(mkeyd_methods),
 };
 
+static void mkeyd_isr(void *parm)
+{
+    //printf("isr enter\n");
+    // Update key status and notifty register client
+    // TODO
+    ubus_notify(ctx,  &mkeyd_object, "isr xxx", NULL, -1);
+}
+
+static int notify_count = 0;
+
+static void mkeyd_notify(void)
+{
+    char str[32];
+
+    sprintf(str, "Notify - %02d", notify_count);
+    notify_count += 1;
+    ubus_notify(ctx,  &mkeyd_object, str, NULL, -1);
+}
+
 static void mkeyd_main(void)
 {
 	int ret;
@@ -93,10 +111,12 @@ static void mkeyd_main(void)
         fprintf(stderr, "Failed to add object: %s\n", ubus_strerror(ret));
     }
 
+#if 0
 	ret = ubus_register_subscriber(ctx, &mkeyd_event);
 	if (ret) {
         fprintf(stderr, "Failed to add watch handler: %s\n", ubus_strerror(ret));
     }
+#endif
 
     mraa_init();
     gpio = mraa_gpio_init(GPIO_PIN);
