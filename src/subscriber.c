@@ -18,8 +18,8 @@ static int subscriber_notify(struct ubus_context *ctx, struct ubus_object *obj,
     printf("Notify handler...\n");
 
     //str = blobmsg_format_json(msg, true);
-    fprintf(stderr, "Received notification '%s': %s\n", method, str);
-    //free(str);
+    //str = blobmsg_get_string(msg);
+    fprintf(stderr, "Received notification '%s': blob len - %d\n", method, blobmsg_data_len(msg));
 
     return 0;
 }

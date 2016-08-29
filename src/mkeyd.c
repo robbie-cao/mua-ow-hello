@@ -97,9 +97,9 @@ static void mkeyd_notify(void)
 {
     char str[32];
 
-    sprintf(str, "Notify - %02d", notify_count);
+    sprintf(str, "Notify-%02d", notify_count);
     notify_count += 1;
-    ubus_notify(ctx,  &mkeyd_object, str, NULL, -1);
+    ubus_notify(ctx,  &mkeyd_object, str, b.head, -1);
 }
 
 static void mkeyd_main(void)
