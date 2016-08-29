@@ -27,7 +27,7 @@ mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
 {
     blob_buf_init(&b, 0);
     blobmsg_add_string(&b, "status", "XX");
-    blobmsg_add_u8(&b, "gpio", GPIO_PIN);
+    blobmsg_add_u16(&b, "gpio", GPIO_PIN);
     blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
 
@@ -59,7 +59,7 @@ mkeyd_get(struct ubus_context *ctx, struct ubus_object *obj,
 
     blob_buf_init(&b, 0);
     blobmsg_add_string(&b, "get", "XX");
-    blobmsg_add_u8(&b, "gpio", GPIO_PIN);
+    blobmsg_add_u16(&b, "gpio", GPIO_PIN);
     blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
 
