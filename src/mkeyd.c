@@ -8,31 +8,45 @@ static struct ubus_context *ctx;
 static struct ubus_subscriber mkeyd_event;
 static struct blob_buf b;
 
-enum {
-    STATUS_ID,
-    __STATUS_MAX,
-};
-
-static const struct blobmsg_policy mkeyd_status_policy[__STATUS_MAX] = {
-    [STATUS_ID] = { .name = "id", .type = BLOBMSG_TYPE_INT32 },
-};
-
 static int
 mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
         struct ubus_request_data *req, const char *method,
         struct blob_attr *msg)
 {
-    struct device *dev = NULL;
-    struct blob_attr *tb[__STATUS_MAX];
+    blob_buf_init(&b, 0);
+    blobmsg_add_string(&b, "status", "XX");
+    blobmsg_add_u8(&b, "gpio", 6);
+    blobmsg_add_u8(&b, "value", 1);
+    ubus_send_reply(ctx, req, b.head);
 
-    blobmsg_parse(mkeyd_status_policy, __STATUS_MAX, tb, blob_data(msg), blob_len(msg));
+    return 0;
+}
 
-    if (tb[STATUS_ID]) {
+enum {
+    GET_ID,
+    __GET_MAX,
+};
+
+static const struct blobmsg_policy mkeyd_get_policy[__GET_MAX] = {
+    [GET_ID] = { .name = "id", .type = BLOBMSG_TYPE_INT32 },
+};
+
+static int
+mkeyd_get(struct ubus_context *ctx, struct ubus_object *obj,
+        struct ubus_request_data *req, const char *method,
+        struct blob_attr *msg)
+{
+    struct blob_attr *tb[__GET_MAX];
+
+    blobmsg_parse(mkeyd_get_policy, __GET_MAX, tb, blob_data(msg), blob_len(msg));
+
+    if (tb[GET_ID]) {
         // Check if id valid
         // TODO
     }
 
     blob_buf_init(&b, 0);
+    blobmsg_add_string(&b, "get", "XX");
     blobmsg_add_u8(&b, "gpio", 6);
     blobmsg_add_u8(&b, "value", 1);
     ubus_send_reply(ctx, req, b.head);
@@ -41,9 +55,9 @@ mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
 }
 
 static const struct ubus_method mkeyd_methods[] = {
-    UBUS_METHOD("status" , mkeyd_status , mkeyd_status_policy) ,
-#if 0
+    { .name = "status" , .handler = mkeyd_status } ,
 	UBUS_METHOD("get"    , mkeyd_get    , mkeyd_get_policy)    ,
+#if 0
 	UBUS_METHOD("set"    , mkeyd_set    , mkeyd_set_policy)    ,
 #endif
 };
