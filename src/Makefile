@@ -1,7 +1,7 @@
-all: function_key userver uclient
+all: mkey userver uclient
 
-function_key: function_key.o
-	$(CC)  $(LDFLAGS)  function_key.o -o function_key
+mkey: function_key.o
+	$(CC)  $(LDFLAGS)  function_key.o -o mkey
 
 function_key.o: function_key.c
 	$(CC)  $(CFLAGS)   -c  function_key.c
@@ -22,4 +22,4 @@ count.o: count.c
 	$(CC)  $(CFLAGS)   -c  count.c
 
 clean:
-	    rm *.o function_key
+	    rm *.o mkey userver uclient

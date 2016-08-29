@@ -2,22 +2,18 @@ include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/package.mk
 
 PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
-PKG_NAME:=function_key
-#Version: 1.0-1
-PKG_VERSION:=1.0
+PKG_NAME:=mhello
+PKG_VERSION:=0.0.1
 PKG_RELEASE:=1
-PKG_MAINTAINER:=JPH
-# PKG_SOURCE_URL:=
 
-define Package/function_key
+define Package/mhello
     SECTION:=utils
 	CATEGORY:=Utilities
 	DEFAULT:=y
-	TITLE:=Function Key -- catch function key input
+	TITLE:=Hello MUA - practice on openwrt
 	DEPENDS:=+libmraa +libubus +libubox
 endef
 
-#EXTRA_CFLAGS
 EXTRA_LDFLAGS += -lmraa -lubus -lubox
 #TARGET_CFLAGS+= -Wall
 
@@ -26,13 +22,13 @@ define Build/Prepare
 	$(Build/Prepare/Default)
 	$(CP) ./src/* $(PKG_BUILD_DIR)  
 endef
-define Package/function_key/install
-	@echo "############## Package/function_key/install"
+define Package/mhello/install
+	@echo "############## Package/mhello/install"
 	$(INSTALL_DIR) $(1)/usr/bin
-	$(INSTALL_BIN) $(PKG_BUILD_DIR)/function_key $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mkey $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/userver $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uclient $(1)/usr/bin
 endef
 
-$(eval $(call BuildPackage,function_key))
+$(eval $(call BuildPackage,mhello))
 
