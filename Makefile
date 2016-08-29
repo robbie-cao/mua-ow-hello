@@ -12,6 +12,7 @@ define Package/mhello
 	DEFAULT:=y
 	TITLE:=Hello MUA - practice on openwrt
 	DEPENDS:=+libmraa +libubus +libubox
+	#DEPENDS:=+libmraa +libubus +libubox +libblobmsg_json
 endef
 
 EXTRA_LDFLAGS += -lmraa -lubus -lubox
@@ -29,6 +30,7 @@ define Package/mhello/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/userver $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uclient $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mkeyd $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ks $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,mhello))

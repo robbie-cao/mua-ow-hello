@@ -1,4 +1,4 @@
-all: mkey userver uclient mkeyd
+all: mkey userver uclient mkeyd ks
 
 mkey: function_key.o
 	$(CC)  $(LDFLAGS)  function_key.o -o mkey
@@ -27,5 +27,11 @@ mkeyd: mkeyd.o
 mkeyd.o: mkeyd.c
 	$(CC)  $(CFLAGS)   -c  mkeyd.c
 
+ks: subscriber.o
+	$(CC)  $(LDFLAGS)  subscriber.o -o ks
+
+subscriber.o: subscriber.c
+	$(CC)  $(CFLAGS)   -c  subscriber.c
+
 clean:
-	    rm *.o mkey userver uclient
+	    rm *.o mkey userver uclient mkeyd ks
