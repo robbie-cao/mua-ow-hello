@@ -3,10 +3,22 @@
 
 #include <libubox/blobmsg_json.h>
 #include "libubus.h"
+#include "mraa.h"
+
+#define GPIO_PIN    16
 
 static struct ubus_context *ctx;
 static struct ubus_subscriber mkeyd_event;
 static struct blob_buf b;
+
+static mraa_gpio_context gpio;
+
+static void mkeyd_isr(void *parm)
+{
+    //printf("isr enter\n");
+    // Update key status and notifty register client
+    // TODO
+}
 
 static int
 mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
@@ -15,8 +27,8 @@ mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
 {
     blob_buf_init(&b, 0);
     blobmsg_add_string(&b, "status", "XX");
-    blobmsg_add_u8(&b, "gpio", 6);
-    blobmsg_add_u8(&b, "value", 1);
+    blobmsg_add_u8(&b, "gpio", GPIO_PIN);
+    blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
 
     return 0;
@@ -47,8 +59,8 @@ mkeyd_get(struct ubus_context *ctx, struct ubus_object *obj,
 
     blob_buf_init(&b, 0);
     blobmsg_add_string(&b, "get", "XX");
-    blobmsg_add_u8(&b, "gpio", 6);
-    blobmsg_add_u8(&b, "value", 1);
+    blobmsg_add_u8(&b, "gpio", GPIO_PIN);
+    blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
 
     return 0;
@@ -72,17 +84,25 @@ static struct ubus_object mkeyd_object = {
 	.n_methods = ARRAY_SIZE(mkeyd_methods),
 };
 
-static void server_main(void)
+static void mkeyd_main(void)
 {
 	int ret;
 
 	ret = ubus_add_object(ctx, &mkeyd_object);
-	if (ret)
-		fprintf(stderr, "Failed to add object: %s\n", ubus_strerror(ret));
+	if (ret) {
+        fprintf(stderr, "Failed to add object: %s\n", ubus_strerror(ret));
+    }
 
 	ret = ubus_register_subscriber(ctx, &mkeyd_event);
-	if (ret)
-		fprintf(stderr, "Failed to add watch handler: %s\n", ubus_strerror(ret));
+	if (ret) {
+        fprintf(stderr, "Failed to add watch handler: %s\n", ubus_strerror(ret));
+    }
+
+    mraa_init();
+    gpio = mraa_gpio_init(GPIO_PIN);
+    // Check init reseut
+    // TODO
+    mraa_gpio_dir(gpio, MRAA_GPIO_IN);
 
 	uloop_run();
 }
@@ -116,7 +136,7 @@ int main(int argc, char **argv)
 
 	ubus_add_uloop(ctx);
 
-	server_main();
+	mkeyd_main();
 
 	ubus_free(ctx);
 	uloop_done();
