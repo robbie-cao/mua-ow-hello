@@ -14,11 +14,11 @@ define Package/function_key
 	CATEGORY:=Utilities
 	DEFAULT:=y
 	TITLE:=Function Key -- catch function key input
-	DEPENDS:=+libmraa
+	DEPENDS:=+libmraa +libubus +libubox
 endef
 
 #EXTRA_CFLAGS
-EXTRA_LDFLAGS += -lmraa
+EXTRA_LDFLAGS += -lmraa -lubus -lubox
 #TARGET_CFLAGS+= -Wall
 
 define Build/Prepare
@@ -30,6 +30,8 @@ define Package/function_key/install
 	@echo "############## Package/function_key/install"
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/function_key $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/userver $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uclient $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,function_key))
