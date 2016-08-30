@@ -1,4 +1,4 @@
-all: mkey userver uclient mkeyd ks
+all: mkey userver uclient mkeyd ks pn532
 
 mkey: function_key.o
 	$(CC)  $(LDFLAGS)  function_key.o -o mkey
@@ -33,5 +33,11 @@ ks: subscriber.o
 subscriber.o: subscriber.c
 	$(CC)  $(CFLAGS)   -c  subscriber.c
 
+pn532: pn532.o
+	$(CXX)  $(LDFLAGS)  pn532.o -o pn532
+
+pn532.o: pn532.cpp
+	$(CXX)  $(CFLAGS)   -c  pn532.cpp
+
 clean:
-	    rm *.o mkey userver uclient mkeyd ks
+	    rm *.o mkey userver uclient mkeyd ks pn532

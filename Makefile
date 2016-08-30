@@ -11,11 +11,11 @@ define Package/mhello
 	CATEGORY:=Utilities
 	DEFAULT:=y
 	TITLE:=Hello MUA - practice on openwrt
-	DEPENDS:=+libmraa +libubus +libubox
+	DEPENDS:=+libmraa +libupm-pn532 +libubus +libubox
 	#DEPENDS:=+libmraa +libubus +libubox +libblobmsg_json
 endef
 
-EXTRA_LDFLAGS += -lmraa -lubus -lubox
+EXTRA_LDFLAGS += -lmraa -lupm-pn532 -lubus -lubox
 #TARGET_CFLAGS+= -Wall
 
 define Build/Prepare
