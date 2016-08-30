@@ -31,6 +31,8 @@ define Package/mhello/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uclient $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mkeyd $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ks $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/pn532 $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/pn532-writeurl $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,mhello))
