@@ -1,4 +1,4 @@
-all: mkey userver uclient mkeyd ks pn532
+all: mkey userver uclient mkeyd ks pn532 pn532-writeurl
 
 mkey: function_key.o
 	$(CC)  $(LDFLAGS)  function_key.o -o mkey
@@ -38,6 +38,12 @@ pn532: pn532.o
 
 pn532.o: pn532.cpp
 	$(CXX)  $(CFLAGS)   -c  pn532.cpp
+
+pn532-writeurl: pn532-writeurl.o
+	$(CXX)  $(LDFLAGS)  pn532-writeurl.o -o pn532-writeurl
+
+pn532-writeurl.o: pn532-writeurl.cxx
+	$(CXX)  $(CFLAGS)   -c  pn532-writeurl.cxx
 
 clean:
 	    rm *.o mkey userver uclient mkeyd ks pn532
