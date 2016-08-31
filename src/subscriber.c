@@ -14,12 +14,32 @@ static int subscriber_notify(struct ubus_context *ctx, struct ubus_object *obj,
         const char *method, struct blob_attr *msg)
 {
     char *str = "zzz";
+    struct blob_attr *cur;
+    const struct blobmsg_policy policy[] = {
+        { "isr", BLOBMSG_TYPE_STRING },
+        { "key", BLOBMSG_TYPE_INT16 },
+        { "action", BLOBMSG_TYPE_INT8 },
+    };
+    uint8_t policy_len = sizeof(policy) / sizeof(policy[0]);
 
     printf("Notify handler...\n");
 
     //str = blobmsg_format_json(msg, true);
     //str = blobmsg_get_string(msg);
     fprintf(stderr, "Received notification '%s': blob len - %d\n", method, blobmsg_data_len(msg));
+
+    blobmsg_parse(&policy[0], policy_len, &cur, blob_data(msg), blob_len(msg));
+    if (cur) {
+        printf("isr: %s\n", blobmsg_get_string(cur));
+    }
+    blobmsg_parse(&policy[1], policy_len, &cur, blob_data(msg), blob_len(msg));
+    if (cur) {
+        printf("key: %d\n", blobmsg_get_u16(cur));
+    }
+    blobmsg_parse(&policy[2], policy_len, &cur, blob_data(msg), blob_len(msg));
+    if (cur) {
+        printf("action: %d\n", blobmsg_get_u8(cur));
+    }
 
     return 0;
 }

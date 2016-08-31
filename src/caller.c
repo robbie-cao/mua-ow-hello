@@ -41,7 +41,7 @@ static void caller_status_cb(struct ubus_request *req, int type, struct blob_att
     }
     blobmsg_parse(&policy[2], policy_len, &cur, blob_data(msg), blob_len(msg));
     if (cur) {
-        printf("gpio : %d\n", blobmsg_get_u8(cur));
+        printf("value: %d\n", blobmsg_get_u8(cur));
     }
 }
 
