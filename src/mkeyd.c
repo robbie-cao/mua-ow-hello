@@ -20,6 +20,11 @@ mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
         struct ubus_request_data *req, const char *method,
         struct blob_attr *msg)
 {
+    // {
+    //      "status" : "XX",
+    //      "gpio", 16
+    //      "value", 1
+    // }
     blob_buf_init(&b, 0);
     blobmsg_add_string(&b, "status", "XX");
     blobmsg_add_u16(&b, "gpio", GPIO_PIN);
@@ -54,6 +59,11 @@ mkeyd_get(struct ubus_context *ctx, struct ubus_object *obj,
         // TODO
     }
 
+    // {
+    //      "get" : "XX",
+    //      "gpio", 16
+    //      "value", 1
+    // }
     blob_buf_init(&b, 0);
     blobmsg_add_string(&b, "get", "XX");
     blobmsg_add_u16(&b, "gpio", GPIO_PIN);

@@ -20,7 +20,29 @@ static void caller_status_cb(struct ubus_request *req, int type, struct blob_att
         interfaces = blob_memdup(cur);
 #endif
 
+    struct blob_attr *cur;
+    const struct blobmsg_policy policy[] = {
+        { "status", BLOBMSG_TYPE_STRING },
+        { "gpio", BLOBMSG_TYPE_INT16 },
+        { "value", BLOBMSG_TYPE_INT8 },
+    };
+    uint8_t policy_len = sizeof(policy) / sizeof(policy[0]);
+
     fprintf(stderr, "Caller CB\n");
+//    fprintf(stderr, "blobmsg: %s\n", blobmsg_data(msg));
+
+    blobmsg_parse(&policy[0], policy_len, &cur, blob_data(msg), blob_len(msg));
+    if (cur) {
+        printf("status : %s\n", blobmsg_get_string(cur));
+    }
+    blobmsg_parse(&policy[1], policy_len, &cur, blob_data(msg), blob_len(msg));
+    if (cur) {
+        printf("gpio : %d\n", blobmsg_get_u16(cur));
+    }
+    blobmsg_parse(&policy[2], policy_len, &cur, blob_data(msg), blob_len(msg));
+    if (cur) {
+        printf("gpio : %d\n", blobmsg_get_u8(cur));
+    }
 }
 
 static void caller_get_cb(struct ubus_request *req, int type, struct blob_attr *msg)
