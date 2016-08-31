@@ -1,10 +1,10 @@
 include $(TOPDIR)/rules.mk
 include $(INCLUDE_DIR)/package.mk
 
-PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 PKG_NAME:=mhello
 PKG_VERSION:=0.0.1
 PKG_RELEASE:=1
+PKG_BUILD_DIR:=$(BUILD_DIR)/$(PKG_NAME)
 
 define Package/mhello
     SECTION:=utils
@@ -21,7 +21,7 @@ EXTRA_LDFLAGS += -lmraa -lupm-pn532 -lubus -lubox
 define Build/Prepare
 	@echo "############## Build/Prepare"
 	$(Build/Prepare/Default)
-	$(CP) ./src/* $(PKG_BUILD_DIR)  
+	$(CP) ./src/* $(PKG_BUILD_DIR)
 endef
 define Package/mhello/install
 	@echo "############## Package/mhello/install"
