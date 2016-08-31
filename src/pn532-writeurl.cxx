@@ -39,7 +39,9 @@ int main(int argc, char **argv)
   // Instantiate an PN532 on I2C bus 0 (default) using gpio 3 for the
   // IRQ, and gpio 2 for the reset pin.
 
-  upm::PN532 *nfc = new upm::PN532(3, 2);
+  upm::PN532 *nfc = new upm::PN532(15, 17);
+
+  nfc->pn532Debug(1);
 
   if (!nfc->init())
     cerr << "init() failed" << endl;
