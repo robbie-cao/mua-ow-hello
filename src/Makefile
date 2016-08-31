@@ -2,7 +2,7 @@ all: target
 FORCE: ;
 .PHONY: FORCE
 
-target: function_key userver uclient mkeyd ks pn532 pn532-writeurl
+target: function_key userver uclient mkeyd ks pn532 pn532-writeurl caller
 
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -28,6 +28,9 @@ mkeyd: mkeyd.o
 ks: subscriber.o
 	$(CC) $(LDFLAGS) subscriber.o -o ks
 
+caller: caller.o
+	$(CC) $(LDFLAGS) caller.o -o caller
+
 pn532: pn532.o
 	$(CXX) $(LDFLAGS) pn532.o -o pn532
 
@@ -35,5 +38,5 @@ pn532-writeurl: pn532-writeurl.o
 	$(CXX) $(LDFLAGS) pn532-writeurl.o -o pn532-writeurl
 
 clean:
-	rm -f *.o mkey userver uclient mkeyd ks pn532
+	rm -f *.o mkey userver uclient mkeyd ks pn532 pn532-writeurl caller
 
