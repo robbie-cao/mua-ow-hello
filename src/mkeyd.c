@@ -83,12 +83,25 @@ static struct ubus_object mkeyd_object = {
 	.n_methods = ARRAY_SIZE(mkeyd_methods),
 };
 
-static void mkeyd_isr(void *parm)
+static int isr_count = 0;
+
+static void mkeyd_isr(void *param)
 {
-    //printf("isr enter\n");
-    // Update key status and notifty register client
-    // TODO
-    ubus_notify(ctx,  &mkeyd_object, "isr xxx", NULL, -1);
+    uint8_t level = mraa_gpio_read(gpio);
+    char str[32];
+
+    sprintf(str, "ISR-%02d - %d - %s",
+            isr_count,
+            param ? *((int *)param) : 0,
+            level ? "KeyPress" : "KeyRelease"
+            );
+    isr_count += 1;
+
+    blob_buf_init(&b, 0);
+    blobmsg_add_string(&b, "isr", "XX");
+    blobmsg_add_u16(&b, "key", GPIO_PIN);
+    blobmsg_add_u8(&b, "action", mraa_gpio_read(gpio));
+    ubus_notify(ctx,  &mkeyd_object, str, b.head, -1);
 }
 
 static int notify_count = 0;
@@ -114,7 +127,7 @@ static int mkeyd_init(void)
     // Check init reseut
     // TODO
     mraa_gpio_dir(gpio, MRAA_GPIO_IN);
-    mraa_gpio_isr(gpio, MRAA_GPIO_EDGE_BOTH, mkeyd_notify, &param);
+    mraa_gpio_isr(gpio, MRAA_GPIO_EDGE_BOTH, mkeyd_isr, &param);
 
     return 0;
 }
