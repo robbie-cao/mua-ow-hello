@@ -9,10 +9,12 @@ int main(void)
 {
     // Instantiate an PN532 on I2C bus 0 (default) using gpio 3 for the
     // IRQ, and gpio 2 for the reset pin.
-    upm::PN532 *nfc = new upm::PN532(3, 2);
+    //upm::PN532 *nfc = new upm::PN532(3, 2);
+    upm::PN532 *nfc = new upm::PN532(15, 17);
     if (!nfc->init()) {
         printf("init() failed\n");
     }
+    nfc->pn532Debug(1);
     uint32_t vers = nfc->getFirmwareVersion();
     if (vers) {
         printf("Got firmware version: 0x%08x\n", vers);
