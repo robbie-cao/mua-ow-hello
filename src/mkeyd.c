@@ -13,7 +13,7 @@ static struct blob_buf b;
 
 static mraa_gpio_context gpio;
 
-static void mkeyd_notify(void);
+static void mkeyd_notify(void*);
 
 static int
 mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
@@ -26,7 +26,7 @@ mkeyd_status(struct ubus_context *ctx, struct ubus_object *obj,
     blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
     // Test notify
-    mkeyd_notify();
+    mkeyd_notify(NULL);
 
     return 0;
 }
@@ -60,7 +60,7 @@ mkeyd_get(struct ubus_context *ctx, struct ubus_object *obj,
     blobmsg_add_u8(&b, "value", mraa_gpio_read(gpio));
     ubus_send_reply(ctx, req, b.head);
     // Test notify
-    mkeyd_notify();
+    mkeyd_notify(NULL);
 
     return 0;
 }
@@ -93,13 +93,30 @@ static void mkeyd_isr(void *parm)
 
 static int notify_count = 0;
 
-static void mkeyd_notify(void)
+static void mkeyd_notify(void* param)
 {
     char str[32];
 
-    sprintf(str, "Notify-%02d", notify_count);
+    if (param) {
+        sprintf(str, "Notify-%02d - %d", notify_count, *((int *)param));
+    } else {
+        sprintf(str, "Notify-%02d", notify_count);
+    }
     notify_count += 1;
     ubus_notify(ctx,  &mkeyd_object, str, b.head, -1);
+}
+
+static int mkeyd_init(void)
+{
+    int param = 0x55;
+
+    gpio = mraa_gpio_init(GPIO_PIN);
+    // Check init reseut
+    // TODO
+    mraa_gpio_dir(gpio, MRAA_GPIO_IN);
+    mraa_gpio_isr(gpio, MRAA_GPIO_EDGE_BOTH, mkeyd_notify, &param);
+
+    return 0;
 }
 
 static void mkeyd_main(void)
@@ -117,12 +134,7 @@ static void mkeyd_main(void)
         fprintf(stderr, "Failed to add watch handler: %s\n", ubus_strerror(ret));
     }
 #endif
-
-    mraa_init();
-    gpio = mraa_gpio_init(GPIO_PIN);
-    // Check init reseut
-    // TODO
-    mraa_gpio_dir(gpio, MRAA_GPIO_IN);
+    mkeyd_init();
 
 	uloop_run();
 }
