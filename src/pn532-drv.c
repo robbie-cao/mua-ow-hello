@@ -1,14 +1,8 @@
-#include "bcomdef.h"
-#include "OSAL.h"
-#include "OSAL_PwrMgr.h"
-#include "log.h"
+#include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
-#include "OnBoard.h"
-
-#include "hal_assert.h"
-#include "hal_i2c.h"
-
-#include "mua.h"
+#include "mraa.h"
 #include "pn532.h"
 
 #define LOG_TAG             "PN5"
@@ -19,6 +13,22 @@
 
 #define PN532_DATABUF_MAX   32
 
+#define LOG_LEVEL_SYMBOL_VERBOSE        "V"
+#define LOG_LEVEL_SYMBOL_INFO           "I"
+#define LOG_LEVEL_SYMBOL_DEBUG          "D"
+#define LOG_LEVEL_SYMBOL_WARN           "W"
+#define LOG_LEVEL_SYMBOL_ERROR          "E"
+
+#define LOG(fmt, arg...)                printf(fmt, ##arg)
+#define LOGV(tag, fmt, arg...)          printf(LOG_LEVEL_SYMBOL_VERBOSE ## "\t" ## tag ## "\t" fmt, ## arg)
+#define LOGI(tag, fmt, arg...)          printf(LOG_LEVEL_SYMBOL_INFO    ## "\t" ## tag ## "\t" fmt, ## arg)
+#define LOGD(tag, fmt, arg...)          printf(LOG_LEVEL_SYMBOL_DEBUG   ## "\t" ## tag ## "\t" fmt, ## arg)
+#define LOGW(tag, fmt, arg...)          printf(LOG_LEVEL_SYMBOL_WARN    ## "\t" ## tag ## "\t" fmt, ## arg)
+#define LOGE(tag, fmt, arg...)          printf(LOG_LEVEL_SYMBOL_ERROR   ## "\t" ## tag ## "\t" fmt, ## arg)
+
+
+static mraa_i2c_context i2c;
+
 static uint8 sDataBuf[PN532_DATABUF_MAX];
 static uint8 sWaitAck = 0;          // Flag set after sending cmd, send ACK on the coming IRQ from PN532
 
@@ -27,38 +37,40 @@ static uint8 PN532_ACK_FRAME[] = { 0x00, 0x00, 0xFF, 0x00, 0xFF, 0x00 };
 uint8 PN532_Write(uint8 *data, uint8 len)
 {
   uint8 res = PN532_BUS_BUSY;
+  uint8 i = 0;
 
   if (!data || !len) {
     return PN532_INVALID_PARAM;
   }
 
-  res = HalI2CWrite(PN532_I2C_ADDRESS, len, data);
+  res = mraa_i2c_write(i2c, data, len);
 
 #if DEBUG_PN532_BYTE
-  LOGD(LOG_TAG, "W - %02d - 0x", res);
-  for (uint8 i = 0; i < res; i++) {
+  LOG("W - %02d - 0x", res);
+  for (i = 0; i < res; i++) {
     LOG("%02x ", *(data + i));
   }
   LOG("\r\n");
 #endif
 
 
-  return (res == len ? PN532_GOOD : PN532_BUS_BUSY);
+  return (res == MRAA_SUCCESS ? PN532_GOOD : PN532_BUS_BUSY);
 }
 
 uint8 PN532_Read(uint8 *data, uint8 len)
 {
   uint8 res = PN532_BUS_BUSY;
+  uint8 i = 0;
 
   if (!data || !len) {
     return PN532_INVALID_PARAM;
   }
 
-  res = HalI2CRead(PN532_I2C_ADDRESS, len, data);
+  res = mraa_i2c_read(i2c, data, len);
 
 #if DEBUG_PN532_BYTE
-  LOGD(LOG_TAG, "R - %02d - 0x", res);
-  for (uint8 i = 0; i < res; i++) {
+  LOG("R - %02d - 0x", res);
+  for (i = 0; i < res; i++) {
     LOG("%02x ", *(data + i));
   }
   LOG("\r\n");
@@ -79,6 +91,7 @@ uint8 PN532_SendCmd(uint8 cmd, uint8 *pCmdData, uint8 dataLen, uint8 waitAck)
   uint8 res = PN532_BUS_BUSY;
   uint8 idx = 0;
   uint8 sum = 0;
+  uint8 i = 0;
 
   if (!pCmdData && dataLen) {
     return PN532_INVALID_PARAM;
@@ -94,17 +107,17 @@ uint8 PN532_SendCmd(uint8 cmd, uint8 *pCmdData, uint8 dataLen, uint8 waitAck)
 
   sum = PN532_TFI_HOST2PN + cmd;
   // PD1...PDn (Optional Input Data)
-  for (uint8 i = 0; i < dataLen; i++) {
+  for (i = 0; i < dataLen; i++) {
     sDataBuf[idx++] = pCmdData[i];
     sum += pCmdData[i];
   }
   sDataBuf[idx++] = (~sum) + 1;          // Data Checksum
   sDataBuf[idx++] = PN532_POSTAMBLE;
 
-  res = HalI2CWrite(PN532_I2C_ADDRESS, idx, sDataBuf);
+  res = mraa_i2c_write(i2c, sDataBuf, idx);
 #if DEBUG_PN532_BYTE
-  LOGD(LOG_TAG, "W - %02d - 0x", res);
-  for (uint8 i = 0; i < res; i++) {
+  LOG("W - %02d - 0x", res);
+  for (i = 0; i < res; i++) {
     LOG("%02x ", *(sDataBuf + i));
   }
   LOG("\r\n");
@@ -112,16 +125,16 @@ uint8 PN532_SendCmd(uint8 cmd, uint8 *pCmdData, uint8 dataLen, uint8 waitAck)
 
   sWaitAck = (res == idx ? waitAck : 0);
 
-  return (res == idx ? PN532_GOOD : PN532_BUS_BUSY);
+  return (res == MRAA_SUCCESS ? PN532_GOOD : PN532_BUS_BUSY);
 }
 
 uint8 PN532_SendAck(void)
 {
   uint8 res = PN532_BUS_BUSY;
 
-  res = HalI2CWrite(PN532_I2C_ADDRESS, sizeof(PN532_ACK_FRAME), PN532_ACK_FRAME);
+  res = mraa_i2c_write(i2c, PN532_ACK_FRAME, sizeof(PN532_ACK_FRAME));
 
-  return (res == sizeof(PN532_ACK_FRAME) ? PN532_GOOD : PN532_BUS_BUSY);
+  return (res == MRAA_SUCCESS ? PN532_GOOD : PN532_BUS_BUSY);
 }
 
 /**
@@ -133,12 +146,13 @@ uint8 PN532_SendAck(void)
 int8 PN532_ReadAck(void)
 {
   uint8 res = PN532_BUS_BUSY;
+  uint8 i = 0;
 
-  res = HalI2CRead(PN532_I2C_ADDRESS, PN532_DATABUF_MAX, sDataBuf);
+  res = mraa_i2c_read(i2c, sDataBuf, PN532_DATABUF_MAX);
 
 #if DEBUG_PN532_BYTE
-  LOGD(LOG_TAG, "R - %02d - 0x", res);
-  for (int8 i = 0; i < res; i++) {
+  LOG("R - %02d - 0x", res);
+  for (i = 0; i < res; i++) {
     LOG("%02x ", *(sDataBuf + i));
   }
   LOG("\r\n");
@@ -162,16 +176,17 @@ int8 PN532_ReadAck(void)
 int8 PN532_ReadRsp(uint8 *pResp)
 {
   int8 res = PN532_BUS_BUSY;
+  uint8 i = 0;
 
   if (!pResp) {
     return PN532_INVALID_PARAM;
   }
 
-  res = HalI2CRead(PN532_I2C_ADDRESS, PN532_DATABUF_MAX, pResp);
+  res = mraa_i2c_read(i2c, pResp, PN532_DATABUF_MAX);
 
 #if DEBUG_PN532_BYTE
-  LOGD(LOG_TAG, "R - %02d - 0x", res);
-  for (int8 i = 0; i < res; i++) {
+  LOG("R - %02d - 0x", res);
+  for (i = 0; i < res; i++) {
     LOG("%02x ", *(pResp + i));
   }
   LOG("\r\n");
@@ -267,10 +282,10 @@ uint8 PN532_GetFirmwareVersion(PN532_FirmwareVersion_t *pVer)
   pVer->support = pPacket[4];
 
 #if DEBUG_PN532_PACKET
-  LOGD(LOG_TAG, "IC : %02x\r\n", pPacket[1]);
-  LOGD(LOG_TAG, "VER: %02x\r\n", pPacket[2]);
-  LOGD(LOG_TAG, "REV: %02x\r\n", pPacket[3]);
-  LOGD(LOG_TAG, "SUP: %02x\r\n", pPacket[4]);
+  LOG("IC : %02x\r\n", pPacket[1]);
+  LOG("VER: %02x\r\n", pPacket[2]);
+  LOG("REV: %02x\r\n", pPacket[3]);
+  LOG("SUP: %02x\r\n", pPacket[4]);
 #endif
 
   return PN532_GOOD;
@@ -294,6 +309,7 @@ uint8 PN532_InListPassiveTarget(PN532_InListPassiveTarget_Cmd_t *pCmd, PN532_InL
   uint8 len = 0;
   uint8 *pPacket = NULL;
   uint8 cmdData[] = { 0x01, 0x00 };     // MaxTg, BrTy
+  uint8 i = 0;
 
   // Input pCmd -> cmdData
   // TODO
@@ -312,7 +328,8 @@ uint8 PN532_InListPassiveTarget(PN532_InListPassiveTarget_Cmd_t *pCmd, PN532_InL
     return PN532_INVALID_ACK;
   }
 
-  delayMS(5);                               // FIXME: necessary for POLL? No need for IRQ
+  //delayMS(5);                               // FIXME: necessary for POLL? No need for IRQ
+  usleep(5000);                               // FIXME: necessary for POLL? No need for IRQ
 
   memset(sDataBuf, 0, sizeof(sDataBuf));    // Clean buffer for sure
   res = PN532_ReadRsp(sDataBuf);
@@ -340,8 +357,8 @@ uint8 PN532_InListPassiveTarget(PN532_InListPassiveTarget_Cmd_t *pCmd, PN532_InL
 #endif
 
 #if DEBUG_PN532_PACKET
-  LOGD(LOG_TAG, "I - %02d - 0x", len);
-  for (uint8 i = 0; i < len; i++) {
+  LOG("I - %02d - 0x", len);
+  for (i = 0; i < len; i++) {
     LOG("%02x ", *(pPacket + i));
   }
   LOG("\r\n");
@@ -373,6 +390,7 @@ uint8 PN532_FrameParser(const uint8 *pFrame, uint8 frmLen, void **ppPacket, uint
   uint8 idx = 0;
   uint8 checksum = 0;
   const uint8 *p = pFrame;
+  uint8 i = 0;
 
   if (!pFrame || frmLen < PN532_FRAME_LEN_MIN) {
     return PN532_INVALID_FRAME;
@@ -424,7 +442,7 @@ uint8 PN532_FrameParser(const uint8 *pFrame, uint8 frmLen, void **ppPacket, uint
   // Data Checksum
   sum = p[5];                       // TFI
   idx = 6;                          // Position of the next byte data to be processed
-  for (uint8 i = 0; i < len - 1; i++) {
+  for (i = 0; i < len - 1; i++) {
     sum += p[6 + i];
     idx += 1;
   }
@@ -462,15 +480,36 @@ void PN532_Test(void)
   PN532_InListPassiveTarget_Resp_t resp = { 0x00, 0x00, buf, 0 };
 
   res = PN532_GetFirmwareVersion(&fwVer);
-  LOGD(LOG_TAG, "Get_FW_Ver: 0x%02x\r\n", res);
+  LOG("Get_FW_Ver: 0x%02x\r\n", res);
 
   res = PN532_InListPassiveTarget(&cmd, &resp);
-  LOGD(LOG_TAG, "InLstPasTg: 0x%02x\r\n", res);
+  LOG("InLstPasTg: 0x%02x\r\n", res);
 }
 
 void PN532_Init(void)
 {
-  // TODO
+  int res = 0;
+
+  i2c = mraa_i2c_init(0);
+
+  if (!i2c) {
+    fprintf(stderr, "I2C init fail!\n");
+    return ;
+
+  }
+  res = mraa_i2c_address(i2c, PN532_I2C_ADDRESS);
+  fprintf(stdout, "Set PN532 I2C addr %02x, res: %d\n", PN532_I2C_ADDRESS, res);
+}
+
+int main(void)
+{
+  PN532_Init();
+
+  while (1) {
+    PN532_Test();
+    sleep(5);
+  }
+  return 0;
 }
 
 /* vim: set ts=2 sw=2 tw=0 list : */
