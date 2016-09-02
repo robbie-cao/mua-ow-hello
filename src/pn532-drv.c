@@ -47,7 +47,7 @@ uint8 PN532_Write(uint8 *data, uint8 len)
 
 #if DEBUG_PN532_BYTE
   LOG("W - %02d - 0x", res);
-  for (i = 0; i < res; i++) {
+  for (i = 0; i < len; i++) {
     LOG("%02x ", *(data + i));
   }
   LOG("\r\n");
@@ -117,7 +117,7 @@ uint8 PN532_SendCmd(uint8 cmd, uint8 *pCmdData, uint8 dataLen, uint8 waitAck)
   res = mraa_i2c_write(i2c, sDataBuf, idx);
 #if DEBUG_PN532_BYTE
   LOG("W - %02d - 0x", res);
-  for (i = 0; i < res; i++) {
+  for (i = 0; i < idx; i++) {
     LOG("%02x ", *(sDataBuf + i));
   }
   LOG("\r\n");
@@ -160,6 +160,7 @@ int8 PN532_ReadAck(void)
 
   res = PN532_FrameParser(sDataBuf, res, NULL, NULL);
 
+  LOG("ReadAck: 0x%02x - %s\r\n", res, !res ? "ACK" : "NACK");
   if (res == PN532_TFI_ACK) {
     return PN532_ACK;
   }
@@ -245,21 +246,27 @@ uint8 PN532_GetFirmwareVersion(PN532_FirmwareVersion_t *pVer)
   uint8 len = 0;
   uint8 *pPacket = NULL;
 
+  LOG("## GetFirmwareVersion\r\n");
+
+  LOG("## SendCmd\r\n");
   res = PN532_SendCmd(PN532_CMD_GETFIRMWAREVERSION, NULL, 0, 0);
   if (res != PN532_GOOD) {
     return res;
   }
 
+  LOG("## ReadAck\r\n");
   if (PN532_ReadAck() != PN532_ACK) {
     return PN532_INVALID_ACK;
   }
 
+  LOG("## ReadRsp\r\n");
   memset(sDataBuf, 0, sizeof(sDataBuf));    // Clean buffer for sure
   res = PN532_ReadRsp(sDataBuf);
   if (res <= 0) {
     return PN532_ERR;
   }
 
+  LOG("## Decode RspFrame\r\n");
   // Decode response frame
   tfi = PN532_FrameParser(sDataBuf, res, (void **)&pPacket, &len);
   if (tfi != PN532_TFI_PN2HOST) {
@@ -507,7 +514,7 @@ int main(void)
 
   while (1) {
     PN532_Test();
-    sleep(5);
+    sleep(2);
   }
   return 0;
 }
