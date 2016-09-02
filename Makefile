@@ -35,6 +35,7 @@ define Package/mhello/install
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/pn532-writeurl $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/pn532-drv $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/caller $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/9160 $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,mhello))

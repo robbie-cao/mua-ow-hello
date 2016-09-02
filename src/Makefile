@@ -2,7 +2,7 @@ all: target
 FORCE: ;
 .PHONY: FORCE
 
-target: function_key userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv
+target: function_key userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv 9160
 
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -40,6 +40,9 @@ pn532-writeurl: pn532-writeurl.o
 pn532-drv: pn532-drv.o
 	$(CXX) $(LDFLAGS) pn532-drv.o -o pn532-drv
 
+9160: 9160.o
+	$(CXX) $(LDFLAGS) 9160.o -o 9160
+
 clean:
-	rm -f *.o mkey userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv
+	rm -f *.o mkey userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv 9160
 
