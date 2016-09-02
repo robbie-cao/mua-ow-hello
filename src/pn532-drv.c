@@ -13,6 +13,8 @@
 
 #define PN532_DATABUF_MAX   32
 
+#define PN532_ACK_PACKET_LEN   6
+
 #define LOG_LEVEL_SYMBOL_VERBOSE        "V"
 #define LOG_LEVEL_SYMBOL_INFO           "I"
 #define LOG_LEVEL_SYMBOL_DEBUG          "D"
@@ -148,7 +150,7 @@ int8 PN532_ReadAck(void)
   uint8 res = PN532_BUS_BUSY;
   uint8 i = 0;
 
-  res = mraa_i2c_read(i2c, sDataBuf, PN532_DATABUF_MAX);
+  res = mraa_i2c_read(i2c, sDataBuf, PN532_ACK_PACKET_LEN);
 
 #if DEBUG_PN532_BYTE
   LOG("R - %02d - 0x", res);
