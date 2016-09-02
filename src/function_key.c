@@ -19,6 +19,9 @@ main(int argc, char** argv)
     uint16_t buf3[2] = {0x00, 0x00};
     uint16_t buf4[2] = {0x00, 0x00};
     uint8_t buf5 = 0;
+    uint8_t buf[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
+    uint8_t i = 0;
+    uint8_t data = 0;
 
     mraa_init();
     fprintf(stdout, "MRAA Version: %s\nStarting Read on IO16\n", mraa_get_version());
@@ -30,6 +33,36 @@ main(int argc, char** argv)
 
     mraa_i2c_address(i2c, GSENSOR_I2C_ADDR);
 
+    res1 = mraa_i2c_read_byte_data(i2c, LSM6DS3_XG_WHO_AM_I_ADDR);
+    fprintf(stdout, "Read data_1 is 0x%02x - 0x%02x\n", res1, LSM6DS3_XG_WHO_AM_I_ADDR);
+
+    res0 = mraa_i2c_write_byte(i2c, 0x28);
+    res0 = mraa_i2c_read(i2c, buf, 6);
+    fprintf(stdout, "Read data is 0x%02x\n", res0);
+    for(i = 0; i < 6; i++) {
+        fprintf(stdout, "Read data is 0x%02x\n", buf[i]);
+    }
+
+    data = 0x28;
+    res1 = mraa_i2c_read_byte_data(i2c, data);
+    fprintf(stdout, "Read data from REG 0x%02x - Result: 0x%02x\n", data, res1);
+    data = 0x29;
+    res1 = mraa_i2c_read_byte_data(i2c, data);
+    fprintf(stdout, "Read data from REG 0x%02x - Result: 0x%02x\n", data, res1);
+    data = 0x2a;
+    res1 = mraa_i2c_read_byte_data(i2c, data);
+    fprintf(stdout, "Read data from REG 0x%02x - Result: 0x%02x\n", data, res1);
+    data = 0x2b;
+    res1 = mraa_i2c_read_byte_data(i2c, data);
+    fprintf(stdout, "Read data from REG 0x%02x - Result: 0x%02x\n", data, res1);
+    data = 0x2c;
+    res1 = mraa_i2c_read_byte_data(i2c, data);
+    fprintf(stdout, "Read data from REG 0x%02x - Result: 0x%02x\n", data, res1);
+    data = 0x2d;
+    res1 = mraa_i2c_read_byte_data(i2c, data);
+    fprintf(stdout, "Read data from REG 0x%02x - Result: 0x%02x\n", data, res1);
+
+#if 0
     buf0[0] = 0x30;
     buf0[1] = 0x00;
     buf1[0] = 0x44;
@@ -65,6 +98,6 @@ main(int argc, char** argv)
     sleep(1);
     res1 = mraa_i2c_read_byte_data(i2c, LSM6DS3_FIFO_CTRL3);
     fprintf(stdout, "Read data_1 is 0x%02x\n", res1);
-
+#endif
     return 0;
 }
