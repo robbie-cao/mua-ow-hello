@@ -25,23 +25,52 @@ main(int argc, char** argv)
         fprintf(stderr, "UART failed to setup\n");
         return EXIT_FAILURE;
     }
-    mraa_uart_set_baudrate(uart1,115200);
-    mraa_uart_set_baudrate(uart2,115200);
+    mraa_uart_set_baudrate(uart1, 115200);
+    mraa_uart_set_baudrate(uart2, 115200);
 
-    mraa_uart_set_mode(uart1,8,MRAA_UART_PARITY_NONE,1);
-    mraa_uart_set_mode(uart2,8,MRAA_UART_PARITY_NONE,1);
+    mraa_uart_set_mode(uart1, 8, MRAA_UART_PARITY_NONE, 1);
+    mraa_uart_set_mode(uart2, 8, MRAA_UART_PARITY_NONE, 1);
 
-    char buffer[1000]={0};
-    char buff[1000];
-    char good[]="This is uart!";
-    while(gets(buffer)!=NULL)
+    uint8_t buffer[64] = {0};
+    uint8_t buff[100] = {0};
+    char good[] = "This is uart!";
+
+    uint8_t res0 = 0;
+    uint8_t i = 0;
+    uint8_t wakeupcmdbuf[24] = {0x55, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
+                                0x00, 0x00, 0x00, 0x00, 0xFF, 0x03, 0xFD, 0xD4, 0x14, 0x01, 0x17, 0x00};
+    uint8_t readvercmdbuf[9] = {0x00, 0x00, 0xff, 0x02, 0xfe, 0xd4, 0x02, 0x2a, 0x00};
+
+    while(1)
 	{
-		mraa_uart_write(uart1,buffer,10);
-		printf("uart1 send:");
-		puts(buffer);
-		mraa_uart_read(uart2,buff,1000);
-		printf("uart2 receive:");
-		puts(buff);
+#if 1
+		res0 = mraa_uart_write(uart1, wakeupcmdbuf, 24);
+		fprintf(stdout, "uart1 send: %d\n", res0);
+		sleep(1);
+		res0 = mraa_uart_read(uart1, buffer, 15);
+		fprintf(stdout, "uart1receive: %d\n", res0);
+        for(i = 0; i < 15; i++)
+        {
+                fprintf(stdout, "buffer[0x%2x]: 0x%02x\n", i, buffer[i]);
+        }
+#endif
+        res0 = mraa_uart_write(uart1, readvercmdbuf, 9);
+        fprintf(stdout, "uart1 send: %d\n", res0);
+        sleep(1);
+        res0 = mraa_uart_read(uart1, buffer, 19);
+        fprintf(stdout, "uart1receive: %d\n", res0);
+        for(i = 0; i < 19; i++)
+        {
+                fprintf(stdout, "buffer[0x%2x]: 0x%02x\n", i, buffer[i]);
+        }
+        fprintf(stdout, "Firmware Version: 0x");
+        for(i = 0; i < 3; i++)
+        {
+                fprintf(stdout, "%02x", buffer[i+13]);
+        }
+        fprintf(stdout, "\n");
+
+        sleep(3);
 	}
     mraa_uart_stop(uart2);
     mraa_uart_stop(uart1);
