@@ -27,6 +27,7 @@ define Package/mhello/install
 	@echo "############## Package/mhello/install"
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/function_key $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/function_key_uart $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/userver $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/uclient $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/mkeyd $(1)/usr/bin
