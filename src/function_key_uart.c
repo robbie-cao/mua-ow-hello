@@ -45,9 +45,18 @@ main(int argc, char** argv)
     uint8_t readvercmdbuf[9] = {0x00, 0x00, 0xff, 0x02, 0xfe, 0xd4, 0x02, 0x2a, 0x00};
     uint8_t readuidcmdbuf[11] = {0x00, 0x00, 0xff, 0x04, 0xfc, 0xd4, 0x4a, 0x01, 0x00, 0xe1, 0x00};
 
+    // Cmd:0x14; mode:01-normal,02-virtual; timeout:0x14; irq:00-disable,01-enable
+    uint8_t samconfcmdbuf[12] = {0x00, 0x00, 0xff, 0x05, 0xfb, 0xd4, 0x14, 0x01, 0x14, 0x01, 0x02, 0x00};
+
     mraa_uart_write(uart1, wakeupcmdbuf, 24);
     sleep(1);
-    mraa_uart_read(uart1, buffer, 15);
+    res0 = mraa_uart_read(uart1, buffer, 15);
+    fprintf(stdout, "wakeup res: %d\n", res0);
+    for (i = 0; i < 15; i++)
+    {
+        fprintf(stdout, " %02x", buffer[i]);
+    }
+    fprintf(stdout, "\n");
     memset(buffer, 0x0, sizeof(buffer));
 
     mraa_uart_write(uart1, readvercmdbuf, 9);
@@ -62,6 +71,18 @@ main(int argc, char** argv)
     for (i = 0; i < 3; i++)
     {
         fprintf(stdout, "%02x", buffer[i+13]);
+    }
+    fprintf(stdout, "\n");
+    memset(buffer, 0x0, sizeof(buffer));
+
+    res0 =  mraa_uart_write(uart1, samconfcmdbuf, 12);
+    fprintf(stdout, "samconfig write res: %d\n", res0);
+    sleep(1);
+    mraa_uart_read(uart1, buffer, 15);
+    fprintf(stdout, "samconf:\n");
+    for (i = 0; i < 20; i++)
+    {
+        fprintf(stdout, " %02x", buffer[i]);
     }
     fprintf(stdout, "\n");
     memset(buffer, 0x0, sizeof(buffer));
