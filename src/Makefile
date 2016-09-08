@@ -2,7 +2,7 @@ all: target
 FORCE: ;
 .PHONY: FORCE
 
-target: function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv 9160 blobmsg
+target: function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg
 
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -41,12 +41,12 @@ pn532-writeurl: pn532-writeurl.o
 pn532-drv: pn532-drv.o
 	$(CXX) $(LDFLAGS) pn532-drv.o -o pn532-drv
 
-9160: 9160.o
-	$(CXX) $(LDFLAGS) 9160.o -o 9160
+#9160: 9160.o
+#	$(CXX) $(LDFLAGS) 9160.o -o 9160
 
 blobmsg: blobmsg-example.o
 	$(CXX) $(LDFLAGS) blobmsg-example.o -o blobmsg
 
 clean:
-	rm -f *.0 function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv 9160 blobmsg
+	rm -f *.0 function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg
 
