@@ -45,7 +45,7 @@ uint8 PN532_Write(uint8 *data, uint8 len)
     return PN532_INVALID_PARAM;
   }
 
-  res = mraa_i2c_write_data(i2c, data, len);
+  res = mraa_i2c_write(i2c, data, len);
 
 #if DEBUG_PN532_BYTE
   LOG("W - %02d - 0x", res);
@@ -68,7 +68,7 @@ uint8 PN532_Read(uint8 *data, uint8 len)
     return PN532_INVALID_PARAM;
   }
 
-  res = mraa_i2c_read_data(i2c, data, len);
+  res = mraa_i2c_read(i2c, data, len);
 
 #if DEBUG_PN532_BYTE
   LOG("R - %02d - 0x", res);
@@ -116,7 +116,7 @@ uint8 PN532_SendCmd(uint8 cmd, uint8 *pCmdData, uint8 dataLen, uint8 waitAck)
   sDataBuf[idx++] = (~sum) + 1;          // Data Checksum
   sDataBuf[idx++] = PN532_POSTAMBLE;
 
-  res = mraa_i2c_write_data(i2c, sDataBuf, idx);
+  res = mraa_i2c_write(i2c, sDataBuf, idx);
 #if DEBUG_PN532_BYTE
   LOG("W - %02d - 0x", res);
   for (i = 0; i < idx; i++) {
@@ -134,7 +134,7 @@ uint8 PN532_SendAck(void)
 {
   uint8 res = PN532_BUS_BUSY;
 
-  res = mraa_i2c_write_data(i2c, PN532_ACK_FRAME, sizeof(PN532_ACK_FRAME));
+  res = mraa_i2c_write(i2c, PN532_ACK_FRAME, sizeof(PN532_ACK_FRAME));
 
   return (res == MRAA_SUCCESS ? PN532_GOOD : PN532_BUS_BUSY);
 }
@@ -150,15 +150,7 @@ int8 PN532_ReadAck(void)
   uint8 res = PN532_BUS_BUSY;
   uint8 i = 0;
 
-#if 0
-  res = mraa_i2c_read_data(i2c, sDataBuf, PN532_ACK_PACKET_LEN);
-#else
-  for (i = 0; i < PN532_ACK_PACKET_LEN; i++) {
-    usleep(5000);
-    sDataBuf[i] = mraa_i2c_read_byte(i2c);
-  }
-  res = i;
-#endif
+  res = mraa_i2c_read(i2c, sDataBuf, PN532_ACK_PACKET_LEN);
 
 #if DEBUG_PN532_BYTE
   LOG("R - %02d - 0x", res);
@@ -193,15 +185,7 @@ int8 PN532_ReadRsp(uint8 *pResp)
     return PN532_INVALID_PARAM;
   }
 
-#if 0
-  res = mraa_i2c_read_data(i2c, pResp, PN532_DATABUF_MAX);
-#else
-  for (i = 0; i < PN532_DATABUF_MAX; i++) {
-    pResp[i] = mraa_i2c_read_byte(i2c);
-  }
-  res = i;
-#endif
-
+  res = mraa_i2c_read(i2c, pResp, PN532_DATABUF_MAX);
 
 #if DEBUG_PN532_BYTE
   LOG("R - %02d - 0x", res);
