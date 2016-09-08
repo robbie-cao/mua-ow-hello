@@ -11,7 +11,6 @@ void isr(void *parm)
 int
 main(int argc, char** argv)
 {
-
     mraa_init();
     fprintf(stdout, "MRAA Version: %s\nStarting Read Card\n", mraa_get_version());
 
@@ -39,6 +38,7 @@ main(int argc, char** argv)
     uint8_t buff[100] = {0};
     uint8_t foundCard = 0;
     uint8_t res0 = 0;
+    uint8_t res1 = 0;
     uint8_t i = 0;
     uint8_t wakeupcmdbuf[24] = {0x55, 0x55, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,\
                                 0x00, 0x00, 0x00, 0x00, 0xFF, 0x03, 0xFD, 0xD4, 0x14, 0x01, 0x17, 0x00};
@@ -48,6 +48,15 @@ main(int argc, char** argv)
     // Cmd:0x14; mode:01-normal,02-virtual; timeout:0x14; irq:00-disable,01-enable
     uint8_t samconfcmdbuf[12] = {0x00, 0x00, 0xff, 0x05, 0xfb, 0xd4, 0x14, 0x01, 0x14, 0x01, 0x02, 0x00};
 
+    // Set configure PN532 as target
+    uint8_t tginitastgcmdbuf[46] = {0x00, 0x00, 0xff, 0x39, 0xc8, 0xd4, 0x8C, 0x00, 0x08, 0x00, 0x12, 0x34,\
+                                    0x56, 0x40, 0x01, 0xFE, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xC0, 0xc1,\
+                                    0xC2, 0xC3, 0xC4, 0xC5, 0xC6, 0xC7, 0xFF, 0xFF, 0xAA, 0x99, 0x88, 0x77,\
+                                    0x66, 0x55, 0x44, 0x33, 0x22, 0x11, 0x00, 0x00, 0x21, 0x00};
+
+    uint8_t tgsetgenbcmdbuf[10] = {0x00, 0x00, 0xff, 0x03, 0xfe, 0xd4, 0x92, 0x00, 0x9a, 0x00};
+    uint8_t atctivecmdbuf[17] = {0x00, 0x00, 0xff, 0x0a, 0xf6, 0xd4, 0x56, 0x01, 0x00, 0x01, 0x00, 0xff, 0xff, 0x00, 0x00, 0xd6, 0x00};
+    uint8_t inautopollcmdbuf[12] = {0x00, 0x00, 0xff, 0x05, 0xfb, 0xd4, 0x60, 0xff, 0x01, 0x00, 0xcc, 0x00};
     mraa_uart_write(uart1, wakeupcmdbuf, 24);
     sleep(1);
     res0 = mraa_uart_read(uart1, buffer, 15);
@@ -87,6 +96,31 @@ main(int argc, char** argv)
     fprintf(stdout, "\n");
     memset(buffer, 0x0, sizeof(buffer));
 
+    res0 =  mraa_uart_write(uart1, atctivecmdbuf, 17);
+    fprintf(stdout, "atctivecmdbuf write res: %d\n", res0);
+    sleep(1);
+    res0 = mraa_uart_read(uart1, buffer, 15);
+    fprintf(stdout, "read atctivecmdbuf: %d\n", res0);
+    for (i = 0; i < 20; i++)
+    {
+        fprintf(stdout, " %02x", buffer[i]);
+    }
+    fprintf(stdout, "\n");
+    memset(buffer, 0x0, sizeof(buffer));
+
+    res0 =  mraa_uart_write(uart1, inautopollcmdbuf, 12);
+    fprintf(stdout, "inautopollcmdbuf write res: %d\n", res0);
+    sleep(1);
+    res0 = mraa_uart_read(uart1, buffer, 64);
+    fprintf(stdout, "read inautopollcmdbuf: %d\n", res0);
+    for (i = 0; i < 64; i++)
+    {
+        fprintf(stdout, " %02x", buffer[i]);
+    }
+    fprintf(stdout, "\n");
+    memset(buffer, 0x0, sizeof(buffer));
+
+
     mraa_uart_write(uart1, readuidcmdbuf, 11);
     sleep(1);
     mraa_uart_read(uart1, buffer, 25);
@@ -102,9 +136,9 @@ main(int argc, char** argv)
             }
             fprintf(stdout, "\n");
             fprintf(stdout, "Card uid: 0x");
-            for (i = 0; i < (buffer[9] - 1); i++)
+            for (i = 0; i < (buffer[9] - 2); i++)
             {
-                fprintf(stdout, "%02x", buffer[i+13]); // Active card uid data lengt is buffer[9], it behind of 0x4b, outside of the lastest data
+                fprintf(stdout, "%02x", buffer[i+19]); // Active card uid data lengt is buffer[9], it behind of 0x4b, outside of the lastest data
             }
             fprintf(stdout, "\n");
             memset(buffer, 0x0, sizeof(buffer));
