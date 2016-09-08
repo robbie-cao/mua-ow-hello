@@ -15,8 +15,10 @@ target: function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writ
 
 fucntion_key: function_key.o
 	$(CC) $(LDFLAGS) function_key.o -o function_key
+
 fucntion_key_uart: function_key_uart.o
 	$(CC) $(LDFLAGS) function_key_uart.o -o function_key_uart
+
 userver: server.o count.o
 	$(CC) $(LDFLAGS) server.o count.o -o userver
 
