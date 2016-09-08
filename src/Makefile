@@ -50,5 +50,5 @@ blobmsg: blobmsg-example.o
 	$(CXX) $(LDFLAGS) blobmsg-example.o -o blobmsg
 
 clean:
-	rm -f *.0 function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg
+	rm -f *.o function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg
 
