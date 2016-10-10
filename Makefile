@@ -40,6 +40,7 @@ define Package/mhello/install
 	#$(INSTALL_BIN) $(PKG_BUILD_DIR)/9160 $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/blobmsg $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_BUILD_DIR)/log-test $(1)/usr/bin
+	$(INSTALL_BIN) $(PKG_BUILD_DIR)/ulog-test $(1)/usr/bin
 endef
 
 $(eval $(call BuildPackage,mhello))

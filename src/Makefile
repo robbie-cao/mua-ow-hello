@@ -2,7 +2,7 @@ all: target
 FORCE: ;
 .PHONY: FORCE
 
-target: function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg log-test
+target: function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg log-test ulog-test
 
 %.o: %.c
 	@$(CC) $(CFLAGS) -c $< -o $@
@@ -52,6 +52,9 @@ blobmsg: blobmsg-example.o
 log-test: log.o log-test.o
 	$(CC) $(LDFLAGS) $^ -o $@
 
+ulog-test: ulog-test.o
+	$(CC) $(LDFLAGS) $^ -o $@
+
 clean:
-	rm -f *.o function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg log-test
+	rm -f *.o function_key function_key_uart userver uclient mkeyd ks pn532 pn532-writeurl caller pn532-drv blobmsg log-test ulog-test
 
