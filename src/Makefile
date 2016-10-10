@@ -25,8 +25,8 @@ userver: server.o count.o
 uclient: client.o count.o
 	$(CC) $(LDFLAGS) client.o count.o -o uclient
 
-mkeyd: mkeyd.o
-	$(CC) $(LDFLAGS) mkeyd.o -o mkeyd
+mkeyd: mkeyd.o log.o
+	$(CC) $(LDFLAGS) $^ -o $@
 
 ks: subscriber.o
 	$(CC) $(LDFLAGS) subscriber.o -o ks

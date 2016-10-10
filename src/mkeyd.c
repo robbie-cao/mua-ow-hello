@@ -5,6 +5,8 @@
 #include "libubus.h"
 #include "mraa.h"
 
+#include "log.h"
+
 #define GPIO_PIN    16
 
 static struct ubus_context *ctx;
@@ -158,6 +160,7 @@ static void mkeyd_main(void)
     }
 #endif
     mkeyd_init();
+    log_alert("uloop_run - %s, %d\n", __FUNCTION__, __LINE__);
 
 	uloop_run();
 }
@@ -180,6 +183,10 @@ int main(int argc, char **argv)
 	argc -= optind;
 	argv += optind;
 
+    log_open(NULL, LOG_CHANNEL_SYSLOG | LOG_CHANNEL_CONSOLE);
+
+    log_set_level(LOG_DEBUG);
+    log_info("init - %s, %d\n", __FUNCTION__, __LINE__);
 	uloop_init();
 	signal(SIGPIPE, SIG_IGN);
 
@@ -189,12 +196,14 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
+    log_info("loop - %s, %d\n", __FUNCTION__, __LINE__);
 	ubus_add_uloop(ctx);
 
 	mkeyd_main();
 
 	ubus_free(ctx);
 	uloop_done();
+    log_close();
 
 	return 0;
 }
