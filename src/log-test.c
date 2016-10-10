@@ -5,33 +5,61 @@
 
 int main(void)
 {
-	log_init();
+	log_open("mua0", LOG_CHANNEL_CONSOLE);
 
-	log_set_level(LOG_LEVEL_ALL);
-	LOG_DEBUG("%d\n" , __LINE__);
-	LOG_INFO("%d\n"  , __LINE__);
-	LOG_WARN("%d\n"  , __LINE__);
-	LOG_ERROR("%d\n" , __LINE__);
-	LOG_FATAL("%d\n" , __LINE__);
+	log_set_level(LOG_DEBUG);
+	log_debug("%d\n" , __LINE__);
+	log_info("%d\n"  , __LINE__);
+	log_warn("%d\n"  , __LINE__);
+	log_err("%d\n" , __LINE__);
 
-	log_set_level(LOG_LEVEL_WARN);
-	LOG_DEBUG("%s\n" , "Hello");
-	LOG_INFO("%s\n"  , "Hello");
-	LOG_WARN("%s\n"  , "Hello");
-	LOG_ERROR("%s\n" , "Hello");
-	LOG_FATAL("%s\n" , "Hello");
+	log_set_level(LOG_ERR);
+	log_debug("%s\n" , "hello");
+	log_info("%s\n"  , "hello");
+	log_warn("%s\n"  , "hello");
+	log_err("%s\n" , "hello");
+	log_alert("%s\n" , "hello");
 
-	log_out(LOG_LEVEL_DEBUG, "%d, %s\n", __LINE__, __FUNCTION__);
+	log_output(LOG_ALERT, "%d, %s\n", __LINE__, __FUNCTION__);
 	D();
 
-	LOG_FATAL("%s\n" , __FILE__);
+	log_alert("%s\n" , __FILE__);
 
-	log_set_level(LOG_LEVEL_OFF);
-	LOG_DEBUG("%s\n" , __FILE__);
-	LOG_INFO("%s\n"  , __FILE__);
-	LOG_WARN("%s\n"  , __FILE__);
-	LOG_ERROR("%s\n" , __FILE__);
-	LOG_FATAL("%s\n" , __FILE__);
+	log_set_level(LOG_OFF);
+	log_debug("%s\n" , __FILE__);
+	log_info("%s\n"  , __FILE__);
+	log_warn("%s\n"  , __FILE__);
+	log_err("%s\n" , __FILE__);
+
+	log_close();
+
+	log_open("mua1", LOG_CHANNEL_CONSOLE | LOG_CHANNEL_SYSLOG);
+
+	log_set_level(LOG_DEBUG);
+	log_debug("%d\n" , __LINE__);
+	log_info("%d\n"  , __LINE__);
+	log_warn("%d\n"  , __LINE__);
+	log_err("%d\n" , __LINE__);
+
+	log_set_level(LOG_ERR);
+	log_debug("%s\n" , "hello");
+	log_info("%s\n"  , "hello");
+	log_warn("%s\n"  , "hello");
+	log_err("%s\n" , "hello");
+	log_alert("%s\n" , "hello");
+
+	log_output(LOG_ALERT, "%d, %s\n", __LINE__, __FUNCTION__);
+	D();
+
+	log_alert("%s\n" , __FILE__);
+
+	log_set_level(LOG_OFF);
+	log_debug("%s\n" , __FILE__);
+	log_info("%s\n"  , __FILE__);
+	log_warn("%s\n"  , __FILE__);
+	log_err("%s\n" , __FILE__);
+
+	log_close();
 
 	return 0;
 }
