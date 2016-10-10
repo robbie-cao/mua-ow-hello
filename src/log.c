@@ -86,6 +86,12 @@ void log_set_level(int level)
 	_log_level = level;
 }
 
+void log_set_channel(int channel)
+{
+	_log_channels = channel;
+	log_close();
+	log_defaults();
+}
 
 void log_open(const char *ident, int channels)
 {
