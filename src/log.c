@@ -34,14 +34,11 @@ static const char *log_default_ident(void)
 
 static void log_defaults(void)
 {
-	char *env;
-
-	if (_log_initialized)
+	if (_log_initialized) {
 		return;
+	}
 
-	env = getenv("PREINIT");
-
-	if (_log_ident == NULL && _log_channels != LOG_CHANNEL_CONSOLE) {
+	if (_log_ident == NULL) {
 		_log_ident = log_default_ident();
 	}
 
@@ -63,6 +60,7 @@ void log_output(int level, const char * fmt, ...)
 	log_defaults();
 
 	if (_log_channels & LOG_CHANNEL_CONSOLE) {
+		fprintf(stdout, "%s: ", _log_ident);
 		va_start(ap, fmt);
 		vfprintf(stdout, fmt, ap);
 		va_end(ap);
@@ -91,7 +89,8 @@ void log_set_level(int level)
 
 void log_open(const char *ident, int channels)
 {
-	openlog(ident, LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
+	log_close();
+	_log_ident = ident;
 	_log_channels = channels;
 }
 
